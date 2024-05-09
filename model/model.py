@@ -10,7 +10,40 @@ class Model:
             self._idMap[f._id_fermata] = f
 
 
+    def getBFSNodes(self, source):
+        edges = nx.bfs_edges(self._grafo, source)
+        visited = []
+        for u, v  in edges: # u, v = partenza e arrivo dell'arco
+            visited.append(v)
+            print(v)
+        return visited
+
+    def getDFSNodes(self, source):
+        edges = nx.dfs_edges(self._grafo, source)
+        visited = []
+        for u, v in edges:
+            visited.append(v)
+            print(v)
+        return visited
+
+
+
+    def addEdgePesati(self):
+        self._grafo.add_nodes_from(self._fermate)
+        allConnessioni = DAO.get_all_connessioni()
+        for c in allConnessioni:
+            if self._grafo.has_edge(self._idMap[c.id_stazP],
+                                    self._idMap[c.id_stazA]):
+                # se l'arco c'è incremento il peso di 1
+                self._grafo[self._idMap[c.id_stazP]][self._idMap[c.id_stazA]]["weight"] += 1
+            else:
+                self._grafo.add_edge(self._idMap[c.id_stazP], self._idMap[c.id_stazA], weight = 1)
+
+    def getEdgeWeight(self, v1, v2):
+        return self._grafo[v1][v2]["weight"]
+
     def buildGraph(self):
+        self._grafo.clear()
         self._grafo.add_nodes_from(self.fermate)
         # modo 1 doppio loop sui nodi e query per ogni arco
         """for u in self._fermate:
@@ -31,8 +64,27 @@ class Model:
             u_nodo = self._idMap[c.id_stazP]
             v_nodo = self._idMap[c.id_stazA]
             self._grafo.add_edge(u_nodo, v_nodo)
-            print(f"Added edge between:{u_nodo} and {v_nodo}")
-        print(len(allConnessioni))
+            #print(f"Added edge between:{u_nodo} and {v_nodo}")
+        print(f"Numero archi: {len(allConnessioni)}")
+
+    def buildGraphPesato(self):
+        self._grafo.clear()
+        self._grafo.add_nodes_from(self.fermate)
+        self.addEdgePesati()
+
+    def getArchiPesoMaggiore(self):
+        if (self._grafo.edges) == 0:
+            print("Il grafo è vuoto")
+            return
+        else:
+            edges = self._grafo.edges
+            archiPesanti = []
+            for u, v in edges:
+                peso = self._grafo[u][v]["weight"]
+                if peso > 1:
+                    archiPesanti.append((u, v, peso))
+                    print((u, v, peso))
+            return archiPesanti
 
 
     @property

@@ -15,12 +15,34 @@ class Controller:
         self._view.lst_result.controls.clear()
         self._view.lst_result.controls.append(ft.Text(f"Grafo correttamente creato"))
         self._view.lst_result.controls.append(ft.Text(f"Il grafo ha {nNodes} nodi e {nEdges} archi"))
+        self._view._btnCalcola.disabled = False     # attivo calcola raggiungibili solo quando creo il grafo
 
         self._view.update_page()
 
+    def handleCreaGrafoPesato(self, e):
+        self._model.buildGraphPesato()
+        nNodes = self._model.getNumNodes()
+        nEdges = self._model.getNumEdges()
+        archiPesoMaggiore = self._model.getArchiPesoMaggiore()
+        self._view.lst_result.controls.clear()
+        self._view.lst_result.controls.append(ft.Text(f"Grafo PESATO correttamente creato"))
+        self._view.lst_result.controls.append(ft.Text(f"Il grafo ha {nNodes} nodi e {nEdges} archi"))
+        self._view._btnCalcola.disabled = False
+        for a in archiPesoMaggiore:
+            self._view.lst_result.controls.append(ft.Text(a))
+            self._view.update_page()
+
 
     def handleCercaRaggiungibili(self,e):
-        pass
+        #visited = self._model.getBFSNodes(self._fermataPartenza)
+        visited = self._model.getDFSNodes(self._fermataPartenza)
+
+        self._view.lst_result.controls.clear()
+        self._view.lst_result.controls.append(ft.Text(f"Dalla stazione {self._fermataPartenza} posso raggiungere "
+                                                      f"{len(visited)} stazioni."))
+        for v in visited:
+            self._view.lst_result.controls.append(ft.Text(v))
+        self._view.update_page()
 
     def loadFermate(self, dd: ft.Dropdown()):
         fermate = self._model.fermate

@@ -31,6 +31,7 @@ class Controller:
         for a in archiPesoMaggiore:
             self._view.lst_result.controls.append(ft.Text(a))
             self._view.update_page()
+        self._model.disegna_grafo()
 
 
     def handleCercaRaggiungibili(self,e):

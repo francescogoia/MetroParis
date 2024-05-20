@@ -43,6 +43,8 @@ class View(ft.UserControl):
         self._btnCalcola = ft.ElevatedButton(text="Calcola Raggiungibili", on_click=self._controller.handleCercaRaggiungibili,
                                              disabled=True)
 
+        self._btnCalcolaPercorso = ft.ElevatedButton(text="Calcola percorso", on_click=self._controller.handlePercorso,
+                                                     disabled=True)
 
         #Load elements in DD
         self._controller.loadFermate(self._ddStazPartenza)
@@ -53,6 +55,7 @@ class View(ft.UserControl):
                        self._ddStazPartenza,
                        self._ddStazArrivo,
                        self._btnCalcola,
+                       self._btnCalcolaPercorso
                        ], alignment=ft.MainAxisAlignment.CENTER, spacing=30)
 
         # Row with listview

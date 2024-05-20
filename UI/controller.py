@@ -28,10 +28,13 @@ class Controller:
         self._view.lst_result.controls.append(ft.Text(f"Grafo PESATO correttamente creato"))
         self._view.lst_result.controls.append(ft.Text(f"Il grafo ha {nNodes} nodi e {nEdges} archi"))
         self._view._btnCalcola.disabled = False
+        self._view._btnCalcolaPercorso.disabled = False
         for a in archiPesoMaggiore:
             self._view.lst_result.controls.append(ft.Text(a))
             self._view.update_page()
-        self._model.disegna_grafo()
+       # self._model.disegna_grafo()
+        self._view.update_page()
+
 
 
     def handleCercaRaggiungibili(self,e):
@@ -43,6 +46,26 @@ class Controller:
                                                       f"{len(visited)} stazioni."))
         for v in visited:
             self._view.lst_result.controls.append(ft.Text(v))
+        self._view.update_page()
+
+    def handlePercorso(self, e):
+        if self._fermataPartenza is None and self._fermataArrivo is None:
+            self._view.lst_result.controls.clear()
+            self._view.lst_result.controls.append(ft.Text(f"Attenzione selezionare due fermate"))
+        else:
+            totTime, path = self._model.getbestPath(self._fermataPartenza, self._fermataArrivo)
+            if path == []:
+                self._view.lst_result.controls.clear()
+                self._view.lst_result.controls.append(ft.Text(f"Percorso non trovato."))
+                return
+            else:
+                self._view.lst_result.controls.clear()
+                self._view.lst_result.controls.append(ft.Text(f"Percorso trovato."))
+                self._view.lst_result.controls.append(ft.Text(f"Il cammino più breve tra {self._fermataPartenza} e "
+                                                              f"{self._fermataArrivo}"
+                                                              f"impiega {totTime} minuti"))
+                for p in path:
+                    self._view.lst_result.controls.append(ft.Text(f"{p}"))
         self._view.update_page()
 
     def loadFermate(self, dd: ft.Dropdown()):

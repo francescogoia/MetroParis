@@ -1,3 +1,5 @@
+from geopy import distance
+
 from database.DAO import DAO
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -9,6 +11,10 @@ class Model:
         self._grafo = nx.DiGraph()
         for f in self._fermate:
             self._idMap[f._id_fermata] = f
+        self._linee = DAO.get_all_linee()
+        self._lineaMap = {}
+        for l in self._linee:
+            self._lineaMap[l.id_linea] = l
 
 
     def getBFSNodes(self, source):
@@ -33,12 +39,32 @@ class Model:
         self._grafo.add_nodes_from(self._fermate)
         allConnessioni = DAO.get_all_connessioni()
         for c in allConnessioni:
-            if self._grafo.has_edge(self._idMap[c.id_stazP],
+            v0 = self._idMap[c.id_stazP]
+            v1 = self._idMap[c.id_stazA]
+            linea = self._lineaMap[c.id_linea]
+            peso = self.getTraversalTime(v0, v1, linea)
+            if self._grafo.has_edge(v0, v1):
+                if self._grafo[v0][v1]["weight"] > peso:
+                    self._grafo[v0][v1]["weight"] = peso
+            else:
+                self._grafo.add_edge(v0, v1,
+                                     weight=peso)
+
+            """if self._grafo.has_edge(self._idMap[c.id_stazP],
                                     self._idMap[c.id_stazA]):
                 # se l'arco c'è incremento il peso di 1
                 self._grafo[self._idMap[c.id_stazP]][self._idMap[c.id_stazA]]["weight"] += 1
             else:
-                self._grafo.add_edge(self._idMap[c.id_stazP], self._idMap[c.id_stazA], weight = 1)
+                self._grafo.add_edge(self._idMap[c.id_stazP], self._idMap[c.id_stazA], weight = 1)"""
+
+    def getTraversalTime(self, v0, v1, linea):
+        velocita = linea.velocita
+        p0 = (v0.coordX, v0.coordY)
+        p1 = (v1.coordX, v1.coordY)
+        distanza = distance.distance(p0, p1).km
+        tempo = distanza / velocita
+        return tempo
+
 
     def getEdgeWeight(self, v1, v2):
         return self._grafo[v1][v2]["weight"]
@@ -86,6 +112,10 @@ class Model:
                     archiPesanti.append((u, v, peso))
                     print((u, v, peso))
             return archiPesanti
+
+    def getbestPath(self, v0, v1):
+        costoTot, path = nx.single_source_dijkstra(self._grafo, v0, v1)
+        return costoTot, path
 
     def disegna_grafo(self):
         plt.figure(figsize=(50, 50))
